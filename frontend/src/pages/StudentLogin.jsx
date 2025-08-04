@@ -1,24 +1,22 @@
-
-
-
+// src/pages/StudentLogin.jsx
 import { useState } from "react";
-import { loginUser } from "../services/authService";
+import { loginUserWithRole } from "../services/authService";
 import { useNavigate, Link } from "react-router-dom";
 
 function StudentLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const role = await loginUser(email, password);
+      const role = await loginUserWithRole(email, password, "student");
       localStorage.setItem("auth", "true");
       navigate(`/dashboard/${role}`);
     } catch (err) {
-      setMessage(err.message);
+      setError(err.message);
     }
   };
 
@@ -29,7 +27,7 @@ function StudentLogin() {
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full p-2 mb-4 border rounded" required />
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="w-full p-2 mb-4 border rounded" required />
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded">Login</button>
-        {message && <p className="text-red-500 mt-4 text-center">{message}</p>}
+        {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
 
         <p className="text-sm text-center mt-4">
           Don't have an account?{" "}

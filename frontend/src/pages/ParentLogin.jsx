@@ -1,5 +1,6 @@
+// src/pages/ParentLogin.jsx
 import { useState } from "react";
-import { loginUser } from "../services/authService";
+import { loginUserWithRole } from "../services/authService";
 import { useNavigate, Link } from "react-router-dom";
 
 function ParentLogin() {
@@ -11,7 +12,7 @@ function ParentLogin() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const role = await loginUser(email, password);
+      const role = await loginUserWithRole(email, password, "parent");
       localStorage.setItem("auth", "true");
       navigate(`/dashboard/${role}`);
     } catch (err) {

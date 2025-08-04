@@ -5,39 +5,92 @@ import { doc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 function StudentSignup() {
-  const [name, setName] = useState("");
-  const [studentId, setStudentId] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    fatherName: "",
+    motherName: "",
+    department: "",
+    phone: "",
+    whatsapp: "",
+    officialEmail: "",
+    personalEmail: "",
+    dob: "",
+    nativePlace: "",
+    hostelStatus: "",
+    leetcodeId: "",
+    codechefId: "",
+    password: "",
+    confirmPassword: "",
+    email: ""
+  });
+
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    if (form.password !== form.confirmPassword) {
+      return setMessage("Passwords do not match");
+    }
+
     try {
-      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      const userCred = await createUserWithEmailAndPassword(auth, form.email, form.password);
       await setDoc(doc(db, "users", userCred.user.uid), {
         role: "student",
-        name,
-        studentId,
-        email
+        ...form
       });
       navigate("/login/student");
     } catch (err) {
-      setError(err.message);
+      setMessage(err.message);
     }
   };
 
   return (
-    <form onSubmit={handleSignup} className="signup-form">
-      <h2>Student Signup</h2>
-      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
-      <input value={studentId} onChange={(e) => setStudentId(e.target.value)} placeholder="Student ID" required />
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
-      <button type="submit">Sign Up</button>
-      {error && <p>{error}</p>}
-    </form>
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow-md">
+      <h2 className="text-2xl font-bold text-blue-600 mb-4">Student Signup</h2>
+      <form onSubmit={handleSignup} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {[
+          { label: "Name", name: "name" },
+          { label: "Father's Name", name: "fatherName" },
+          { label: "Mother's Name", name: "motherName" },
+          { label: "Department", name: "department" },
+          { label: "Phone Number", name: "phone" },
+          { label: "WhatsApp Number", name: "whatsapp" },
+          { label: "Official Email", name: "officialEmail" },
+          { label: "Personal Email", name: "personalEmail" },
+          { label: "Date of Birth", name: "dob", type: "date" },
+          { label: "Native Place", name: "nativePlace" },
+          { label: "Hosteller / Day Scholar", name: "hostelStatus" },
+          { label: "LeetCode ID", name: "leetcodeId" },
+          { label: "CodeChef ID", name: "codechefId" },
+          { label: "Login Email", name: "email", type: "email" },
+          { label: "Password", name: "password", type: "password" },
+          { label: "Confirm Password", name: "confirmPassword", type: "password" },
+        ].map(({ label, name, type = "text" }) => (
+          <div key={name}>
+            <label className="block font-medium">{label}</label>
+            <input
+              type={type}
+              name={name}
+              value={form[name]}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border rounded"
+            />
+          </div>
+        ))}
+        <div className="col-span-full text-center">
+          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded mt-4">
+            Sign Up
+          </button>
+          {message && <p className="text-red-500 mt-2">{message}</p>}
+        </div>
+      </form>
+    </div>
   );
 }
 
